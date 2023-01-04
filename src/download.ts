@@ -2,9 +2,7 @@ import fs from "node:fs/promises"
 import path from "node:path"
 import youtubedl from "youtube-dl"
 import axios from "axios"
-
-const YOUTUBE_KEY = "AIzaSyCSR7EH9xhoAZMTYEhaWtNOSzu-lG9eraU"
-const BASE_YT_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
+import { BASE_YT_SEARCH_URL, YOUTUBE_KEY } from "./configs"
 
 async function getYoutubeSearchId(query: string) {
   const params = {
@@ -14,7 +12,6 @@ async function getYoutubeSearchId(query: string) {
     key: YOUTUBE_KEY,
   }
   const res = await axios.get(BASE_YT_SEARCH_URL, { params })
-  console.log("res", JSON.stringify(res))
   return res.data.items[0].id.videoId
 }
 
@@ -25,6 +22,7 @@ export default async function downloadYouTubeVideo(query: string) {
     const output = await downloadAudio(
       `https://www.youtube.com/watch?v=${videoId}`
     )
+    console.log("Audio downloaded")
     return output
   } catch (e) {
     console.error(e)
@@ -35,7 +33,7 @@ export default async function downloadYouTubeVideo(query: string) {
 async function downloadAudio(url: string): Promise<string> {
   fs.mkdir(path.resolve(__dirname.slice(0, __dirname.length - 4) + "public"), {
     recursive: true,
-  })
+  }).then(() => console.log("Created public folder"))
   return new Promise((resolve, reject) =>
     youtubedl.exec(
       url,

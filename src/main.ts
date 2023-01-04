@@ -1,37 +1,9 @@
 import express from "express"
 import SpotifyWebApi from "spotify-web-api-node"
-import downloadYouTubeVideo from "./download"
-import { getMyData } from "./user"
+import { getMyData, getPlaylistTracksYT } from "./user"
+import { credentials, scopes, state } from "./configs"
 
 const app = express()
-
-const scopes = [
-    "ugc-image-upload",
-    "user-read-playback-state",
-    "user-modify-playback-state",
-    "user-read-currently-playing",
-    "streaming",
-    "app-remote-control",
-    "user-read-email",
-    "user-read-private",
-    "playlist-read-collaborative",
-    "playlist-modify-public",
-    "playlist-read-private",
-    "playlist-modify-private",
-    "user-library-modify",
-    "user-library-read",
-    "user-top-read",
-    "user-read-playback-position",
-    "user-read-recently-played",
-    "user-follow-read",
-    "user-follow-modify",
-  ],
-  state = "some-state"
-const credentials = {
-  clientId: "ffb4a8719d1b4fcd90c2a2e35085587c",
-  clientSecret: "6563a7bd574a41d38ebf429e4e3dac0a",
-  redirectUri: "http://localhost:8000/callback",
-}
 
 const spotifyApi = new SpotifyWebApi(credentials)
 
@@ -112,9 +84,14 @@ app.get("/callback", (req, res) => {
 })
 
 app.get("/download", (_, res) => {
-  downloadYouTubeVideo("By Design [Evel Knievel]").then((url) => {
-    res.json({ msg: "success", url })
-  })
+  // downloadYouTubeVideo("By Design [Evel Knievel]").then((url) => {
+  //   res.send({ msg: "success", url })
+  // })
+  return getPlaylistTracksYT("oxfl5tg3u665zzl26383snwor").then(
+    (totalDownloads) => {
+      res.send({ msg: "success", totalDownloads })
+    }
+  )
 })
 app.listen(8000, () => console.log("Listening on 8000"))
 

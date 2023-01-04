@@ -3,16 +3,12 @@ import { writeFile } from "fs/promises"
 import SpotifyWebApi from "spotify-web-api-node"
 import _ from "lodash"
 import downloadYouTubeVideo from "./download"
-// const token =
-// "BQAPP7kgUHbBKgRI9Pk38qzpNvHmo-7Nv4Lo10I7cwn6qqHrSe5qrStVvYTAYcj6HyPYr3d_zhvBv33dLmY_0ilCs76HL7OcwSfM46C6L94bRXQN1Ho60LLJ4n3GJaF_kdb6Gfh_5X_Ssl_JqbIAFYn9JNnjACkuAR3uQjdcRQy0GpOurVmNlLLIFNjaoAdaYkCAI-TAnhe_3jqKFXiiuTO_1EiLJV1thxp8XPlN27g9MQydk4fo1uw_X5D_pmc0HuqzgqiUX0JOm3LlveFEL9YpE1xeCKjCMqBwgNalsn7uTvUBjeOit76xmZyqn9A1a88gKDL_ylHgE4RKakDY"
 
 const spotifyApi = new SpotifyWebApi()
-// spotifyApi.setAccessToken(token)
 
 export async function getMyData(token: string) {
   spotifyApi.setAccessToken(token)
   const me = await spotifyApi.getMe()
-  console.table(me.body)
   return getUserPlaylists(me.body.id)
 }
 
@@ -91,7 +87,7 @@ export async function getPlaylistTracksYT(userId: string) {
     .catch((err) => console.log(err))
   if (!userData || !_.isArray(userData)) return
 
-  const downloadPromises = userData.slice(0, 1).map((playlist) =>
+  const downloadPromises = userData.slice(0, 2).map((playlist) =>
     _.get(playlist, "tracks", [])
       .slice(0, 1)
       .map(
@@ -102,5 +98,5 @@ export async function getPlaylistTracksYT(userId: string) {
       )
   )
   console.log("downloadPromises", downloadPromises.length)
-  return Promise.all(downloadPromises)
+  return Promise.all(downloadPromises).then(() => downloadPromises.length)
 }
