@@ -7,6 +7,7 @@ const app = express()
 
 const spotifyApi = new SpotifyWebApi(credentials)
 
+app.get("/ping", (_, res) => res.send("hi bob"))
 app.get("/login", (_, res) =>
   res.redirect(spotifyApi.createAuthorizeURL(scopes, state))
 )
