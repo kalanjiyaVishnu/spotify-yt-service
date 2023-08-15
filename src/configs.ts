@@ -1,5 +1,7 @@
 import { config } from "dotenv"
+import path from "node:path"
 config()
+
 export const scopes = [
     "ugc-image-upload",
     "user-read-playback-state",
@@ -28,7 +30,8 @@ export const scopes = [
     redirectUri:
       process.env.NODE_ENV === "production"
         ? process.env.REDIRECT_URI
-        : "http://localhost:8000/callback",
+        : "http://localhost:3000/callback",
   },
   YOUTUBE_KEY = process.env.YOUTUBE_KEY,
-  BASE_YT_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
+  BASE_YT_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search",
+  BASE_DIR = path.join(__dirname, "../../")
