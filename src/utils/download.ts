@@ -53,6 +53,7 @@ async function download(query: string, ext = "mp3") {
     extractAudio: true,
     audioFormat: ext,
   } as YtFlags)
+  return Promise.resolve(outputFilePath)
 }
 
 export { download }
