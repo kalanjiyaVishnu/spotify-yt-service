@@ -1,8 +1,8 @@
-import path from "node:path"
 import { writeFile } from "fs/promises"
+import { flatten, get, isArray } from "lodash"
+import path from "node:path"
 import SpotifyWebApi from "spotify-web-api-node"
-import _ from "lodash"
-import downloadYouTubeVideo from "./download"
+import { download } from "./utils/download"
 
 const spotifyApi = new SpotifyWebApi()
 
@@ -78,25 +78,31 @@ export async function getPlaylistTracks(
   return tracks
 }
 
-// GET YT LINKS FROM PLA`YLIST
 export async function getPlaylistTracksYT(userId: string) {
-  console.log("getPlaylistTracksYT")
-  const playlistPath = `${path.resolve(__dirname, "../public")}/${userId}.json`
-  const userData: Array<Object> = await import(playlistPath)
-    .then((m) => m.default)
-    .catch((err) => console.log(err))
-  if (!userData || !_.isArray(userData)) return
+  try {
+    const publicDir = path.resolve(__dirname, "../public")
+    const playlistPath = `${publicDir}/${userId}.json`
 
-  const downloadPromises = userData.slice(0, 2).map((playlist) =>
-    _.get(playlist, "tracks", [])
-      .slice(0, 1)
-      .map(
-        async (track) =>
-          await downloadYouTubeVideo(
-            `${_.get(track, "trackName")} ${_.get(track, "by")}`
+    const userData: Object[] = (await import(playlistPath)).default
+
+    if (!userData || !isArray(userData)) return
+
+    const downloadPromises = flatten(
+      userData.slice(0, 2).map((playlist) =>
+        get(playlist, "tracks", [])
+          .slice(0, 1)
+          .map((track: any) =>
+            download(`${get(track, "trackName")} ${get(track, "by")}`)
           )
       )
-  )
-  console.log("downloadPromises", downloadPromises.length)
-  return Promise.all(downloadPromises).then(() => downloadPromises.length)
+    )
+    return Promise.all(downloadPromises)
+      .then((res) => {
+        console.log("res", res)
+        return res
+      })
+      .catch((error) => console.log("error", error))
+  } catch (error) {
+    return error
+  }
 }
