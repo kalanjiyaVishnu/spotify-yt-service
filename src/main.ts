@@ -1,8 +1,9 @@
 import express from "express"
+import path from "node:path"
 import SpotifyWebApi from "spotify-web-api-node"
-import { getMyData, getPlaylistTracksYT } from "./user"
 import { credentials, scopes, state } from "./configs"
-
+import { getPlaylistTracksYT } from "./getPlaylistTracksYT"
+import { getMyData } from "./user"
 const app = express()
 
 const spotifyApi = new SpotifyWebApi(credentials)
@@ -38,13 +39,13 @@ app.get("/callback", (req, res) => {
       )
 
       spotifyApi.getMe().then(
-        function (data) {
+        function (data: any) {
           console.log(
             "Some information about the authenticated user",
             data.body
           )
         },
-        function (err) {
+        function (err: any) {
           console.log("Something went wrong!", err)
         }
       )
@@ -54,11 +55,11 @@ app.get("/callback", (req, res) => {
           offset: 0,
         })
         .then(
-          function (data) {
+          function (data: any) {
             // Output items
             console.log("saved Albums by the user", data.body.items)
           },
-          function (err) {
+          function (err: any) {
             console.log("Something went wrong!", err)
           }
         )
@@ -84,16 +85,15 @@ app.get("/callback", (req, res) => {
     })
 })
 
-app.get("/download", (_, res) => {
-  // downloadYouTubeVideo("By Design [Evel Knievel]").then((url) => {
-  //   res.send({ msg: "success", url })
-  // })
-  return getPlaylistTracksYT("oxfl5tg3u665zzl26383snwor").then(
-    (totalDownloads) => {
-      res.send({ msg: "success", totalDownloads })
-    }
-  )
+app.get("/download/:userId", async (req, res) => {
+  try {
+    const totalDownloads = await getPlaylistTracksYT(req.params.userId)
+    return res.json({ msg: "success", totalDownloads })
+  } catch (error) {
+    return res.json({ msg: "failed", error: error })
+  }
 })
-app.listen(8000, () => console.log("Listening on 8000"))
 
-// getPlaylistTracksYT("oxfl5tg3u665zzl26383snworp")
+app.use(express.static(`${path.resolve(__dirname, "../public")}`))
+
+app.listen(3000, () => console.log("Listening on 3000"))
