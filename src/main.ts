@@ -1,7 +1,7 @@
 import express from "express"
 import path from "node:path"
 import SpotifyWebApi from "spotify-web-api-node"
-import { credentials, scopes, state } from "./configs"
+import { BASE_DIR, credentials, scopes, state } from "./configs"
 import { getPlaylistTracksYT } from "./getPlaylistTracksYT"
 import { getMyData } from "./user"
 const app = express()
